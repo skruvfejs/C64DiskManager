@@ -1,0 +1,8 @@
+<?php
+
+return [
+    'db_host' => '127.0.0.1',
+    'db_name' => 'c64diskmanager',
+    'db_user' => 'c64diskmanager',
+    'db_password' => 'CHANGE_THIS_PASSWORD',
+];

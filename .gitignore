@@ -1,0 +1,10 @@
+# Local configuration
+config/config.php
+
+# Backup/archive files
+*.zip
+*.zip.old
+*.bak
+
+# Local/runtime files
+.DS_Store
