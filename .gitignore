@@ -8,3 +8,5 @@ config/config.php
 
 # Local/runtime files
 .DS_Store
+backup/
+import/
