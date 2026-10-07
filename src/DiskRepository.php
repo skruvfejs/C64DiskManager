@@ -18,38 +18,35 @@ class DiskRepository
         return $stmt->fetch() ?: null;
     }
 
-public function create(
-    string $filename,
-    string $md5,
-    string $diskName,
-    string $diskId,
-    string $dosType,
-    int $blocksFree,
-    array $files,
-    string $status = 'ok',
-    ?string $directoryArt = null
-): int
+    public function create(
+        string $filename,
+        string $md5,
+        string $diskName,
+        string $diskId,
+        string $dosType,
+        int $blocksFree,
+        array $files,
+        string $status = 'ok'
+    ): int
     {
         $this->pdo->beginTransaction();
 
         try {
-$stmt = $this->pdo->prepare(
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO disks
+                (filename, md5, disk_name, disk_id, dos_type, blocks_free, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)'
+            );
 
-'INSERT INTO disks
- (filename, md5, disk_name, disk_id, dos_type, blocks_free, status, directory_art)
- VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-);
-
-$stmt->execute([
-    $filename,
-    $md5,
-    $diskName,
-    $diskId,
-    $dosType,
-    $blocksFree,
-    $status,
-    $directoryArt,
-]);
+            $stmt->execute([
+                $filename,
+                $md5,
+                $diskName,
+                $diskId,
+                $dosType,
+                $blocksFree,
+                $status,
+            ]);
 
             $diskId = (int)$this->pdo->lastInsertId();
 

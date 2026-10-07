@@ -89,7 +89,6 @@ $SUDO cp "$PROJECT_DIR/disk.php" "$WEB_ROOT/"
 $SUDO cp "$PROJECT_DIR/style.css" "$WEB_ROOT/"
 
 $SUDO cp -r "$PROJECT_DIR/src" "$WEB_ROOT/"
-$SUDO cp -r "$PROJECT_DIR/assets" "$WEB_ROOT/"
 
 $SUDO cp "$PROJECT_DIR/config/config.php.example" \
     "$WEB_ROOT/config/config.php"
