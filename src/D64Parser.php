@@ -24,23 +24,46 @@ class D64Parser
     {
     }
 
-    public function parse(): array
-    {
-        $size = strlen($this->data);
+public function parse(): array
+{
+    $size = strlen($this->data);
 
-        if (!in_array($size, [174848, 175531], true)) {
-            throw new RuntimeException(
-                "Unsupported D64 size: {$size} bytes"
-            );
-        }
-
-        return $this->readDirectory();
+    if (!in_array($size, [174848, 175531], true)) {
+        throw new RuntimeException(
+            "Unsupported D64 size: {$size} bytes"
+        );
     }
+
+    $bamOffset = $this->sectorOffset(18, 0);
+
+    $directory = $this->readDirectory();
+
+    return [
+        'disk_name' => $this->readPetAscii(
+            substr($this->data, $bamOffset + 0x90, 16)
+        ),
+
+'disk_id' => $this->readPetAscii(
+    substr($this->data, $bamOffset + 0xA2, 2)
+),
+
+'dos_type' => $this->readPetAscii(
+    substr($this->data, $bamOffset + 0xA5, 2)
+),
+'blocks_free' => $this->readBlocksFree($bamOffset),
+
+        'files' => $directory['files'],
+        'errors' => $directory['errors'],
+    ];
+}
+
+
+
+
 
     private function readDirectory(): array
     {
         $files = [];
-	$directoryArt = [];
         $errors = [];
 
         $track = 18;
@@ -79,19 +102,6 @@ class D64Parser
 
 $fileTypeByte = ord($this->data[$pos]);
 
-/*
- * C0 directory entries are used by some disks for
- * directory artwork. Preserve the raw 16 PETSCII
- * bytes instead of treating the entry as a DEL file.
- */
-if (
-    $fileTypeByte === 0xC0 &&
-    ord($this->data[$pos + 1]) === 0x12 &&
-    ord($this->data[$pos + 2]) === 0x00
-) {
-    $directoryArt[] = substr($this->data, $pos + 3, 16);
-    continue;
-}
 
 $filename = $this->readPetAscii(
     substr($this->data, $pos + 3, 16)
@@ -120,8 +130,6 @@ $files[] = [
     'start_track' => ord($this->data[$pos + 1]),
     'start_sector' => ord($this->data[$pos + 2]),
 ];
-
-
 
 
             }
@@ -161,7 +169,6 @@ $files[] = [
 
 return [
     'files' => $files,
-    'directory_art' => $directoryArt,
     'errors' => $errors,
 ];
     }
@@ -176,6 +183,20 @@ return [
 
         return $offset + ($sector * 256);
     }
+
+    private function readBlocksFree(int $bamOffset): int
+    {
+        $blocksFree = 0;
+
+        foreach (self::TRACK_SECTORS as $track => $sectors) {
+            $offset = $bamOffset + (($track - 1) * 4);
+
+            $blocksFree += ord($this->data[$offset]);
+        }
+
+        return $blocksFree;
+    }
+
 
     private function readPetAscii(string $data): string
     {

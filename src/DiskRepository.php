@@ -21,6 +21,10 @@ class DiskRepository
 public function create(
     string $filename,
     string $md5,
+    string $diskName,
+    string $diskId,
+    string $dosType,
+    int $blocksFree,
     array $files,
     string $status = 'ok',
     ?string $directoryArt = null
@@ -29,10 +33,23 @@ public function create(
         $this->pdo->beginTransaction();
 
         try {
-	    $stmt = $this->pdo->prepare(
-	    'INSERT INTO disks (filename, md5, status, directory_art) VALUES (?, ?, ?, ?)'
-	    );
-	    $stmt->execute([$filename, $md5, $status, $directoryArt]);
+$stmt = $this->pdo->prepare(
+
+'INSERT INTO disks
+ (filename, md5, disk_name, disk_id, dos_type, blocks_free, status, directory_art)
+ VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+);
+
+$stmt->execute([
+    $filename,
+    $md5,
+    $diskName,
+    $diskId,
+    $dosType,
+    $blocksFree,
+    $status,
+    $directoryArt,
+]);
 
             $diskId = (int)$this->pdo->lastInsertId();
 

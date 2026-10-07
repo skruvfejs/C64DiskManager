@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/src/Database.php';
 require_once __DIR__ . '/src/DiskRepository.php';
-require_once __DIR__ . '/src/C64PetsciiRenderer.php';
 
 $config = require __DIR__ . '/config/config.php';
 $repository = new DiskRepository((new Database($config))->pdo());
@@ -91,45 +90,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <h2>Innehåll</h2>
 
-<table>
-<thead>
-<tr>
-<th>Filnamn</th>
-<th>Typ</th>
-<th>Blocks</th>
-<th>Start</th>
-<th>Låst</th>
-</tr>
-</thead>
-<tbody>
-<?php foreach ($disk['files'] as $file): ?>
-<tr>
-<td><?= htmlspecialchars($file['filename']) ?></td>
-<td><?= htmlspecialchars($file['file_type']) ?></td>
-<td><?= (int)$file['blocks'] ?></td>
-<td><?= (int)$file['start_track'] ?> / <?= (int)$file['start_sector'] ?></td>
-<td><?= $file['locked'] ? 'Ja' : '' ?></td>
-</tr>
-<?php endforeach; ?>
-</tbody>
-</table>
+<div class="c64-directory">
 
-<?php if (!empty($disk['directory_art'])): ?>
 
-<h2>Directory Art</h2>
 
-<?php
-$renderer = new C64PetsciiRenderer(
-    __DIR__ . '/assets/c64-chargen.bin'
-);
+<div class="c64-directory-header">
+    <span class="c64-directory-title">
+        <?= htmlspecialchars($disk['disk_name'] ?? '') ?>
+    </span>
 
-echo $renderer->render(
-    $disk['directory_art'],
-    4
-);
-?>
+    <span class="c64-directory-id">
+        <?= htmlspecialchars($disk['disk_id'] ?? '') ?>
+        <?= htmlspecialchars($disk['dos_type'] ?? '') ?>
+    </span>
+</div>
 
-<?php endif; ?>
+
+    <div class="c64-directory-files">
+        <?php foreach ($disk['files'] as $file): ?>
+        <div class="c64-directory-row">
+            <span class="c64-directory-blocks">
+                <?= (int)$file['blocks'] ?>
+            </span>
+
+            <span class="c64-directory-name">
+                "<?= htmlspecialchars($file['filename']) ?>"
+            </span>
+
+            <span class="c64-directory-type">
+                <?= htmlspecialchars($file['file_type']) ?>
+            </span>
+        </div>
+        <?php endforeach; ?>
+    </div>
+
+<div class="c64-directory-row c64-directory-free">
+    <span class="c64-directory-blocks">
+        <?= (int)$disk['blocks_free'] ?>
+    </span>
+
+    <span class="c64-directory-name">
+        BLOCKS FREE.
+    </span>
+
+    <span class="c64-directory-type"></span>
+</div>
+
+
+</div>
 
 </body>
 </html>

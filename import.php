@@ -34,15 +34,16 @@ function importD64(
 
         $status = empty($parsed['errors']) ? 'ok' : 'errors';
 
-        $id = $repository->create(
-            basename($displayName),
-            $md5,
-            $parsed['files'],
-            $status,
-            !empty($parsed['directory_art'])
-                ? implode('', $parsed['directory_art'])
-                : null
-        );
+$id = $repository->create(
+    basename($displayName),
+    $md5,
+    $parsed['disk_name'],
+    $parsed['disk_id'],
+    $parsed['dos_type'],
+    $parsed['blocks_free'],
+    $parsed['files'],
+    $status
+);
 
         $result =
             "{$displayName}: importerad som disk #{$id} (" .
